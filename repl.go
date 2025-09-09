@@ -1,27 +1,37 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"regexp"
 	"strings"
 )
 
-func cleanInput(text string) []string {
-	var words []string
+func startRepl() {
+	reader := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("Pokedex > ")
+		reader.Scan()
 
-	if text == "" {
-		return words
-	}
-
-	for t := range strings.SplitSeq(strings.TrimSpace(text), " ") {
-		if t == "" {
+		words := cleanInput(reader.Text())
+		if len(words) == 0 {
 			continue
 		}
-		re := regexp.MustCompile(`\P{L}+`)
-		var formatted string = strings.ToLower(t)
-		formatted = strings.TrimSpace(formatted)
-		formatted = re.ReplaceAllString(formatted, "")
-		words = append(words, formatted)
-	}
 
+		commandName := words[0]
+
+		fmt.Printf("Your command was: %s\n", commandName)
+	}
+}
+
+func cleanInput(text string) []string {
+	output := strings.ToLower(text)
+	re := regexp.MustCompile(`\P{L}+`)
+	words := strings.Fields(output)
+	for index, word := range words {
+		w := re.ReplaceAllString(word, "")
+		words[index] = w
+	}
 	return words
 }
