@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/skullzado/bootdev-pokedexcli/internal/pokeapi"
@@ -28,10 +27,14 @@ func startRepl(cfg *config) {
 		}
 
 		commandName := words[0]
-		command, ok := getCommands()[commandName]
+		args := []string{}
+		if len(words) > 1 {
+			args = words[1:]
+		}
 
-		if ok {
-			err := command.callback(cfg)
+		command, exists := getCommands()[commandName]
+		if exists {
+			err := command.callback(cfg, args...)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -45,19 +48,14 @@ func startRepl(cfg *config) {
 
 func cleanInput(text string) []string {
 	output := strings.ToLower(text)
-	re := regexp.MustCompile(`\P{L}+`)
 	words := strings.Fields(output)
-	for index, word := range words {
-		w := re.ReplaceAllString(word, "")
-		words[index] = w
-	}
 	return words
 }
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -66,6 +64,11 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"explore": {
+			name:        "explore <location_name>",
+			description: "Explore a location",
+			callback:    commandExplore,
 		},
 		"map": {
 			name:        "map",
