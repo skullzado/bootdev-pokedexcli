@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"math/rand/v2"
+	"math/rand"
 )
 
 func commandCatch(cfg *config, args ...string) error {
@@ -17,7 +17,7 @@ func commandCatch(cfg *config, args ...string) error {
 		return err
 	}
 
-	res := rand.IntN(pokemon.BaseExperience)
+	res := rand.Intn(pokemon.BaseExperience)
 
 	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
 	if res > 40 {
@@ -26,6 +26,8 @@ func commandCatch(cfg *config, args ...string) error {
 	}
 
 	fmt.Printf("%s was caught!\n", pokemon.Name)
+	fmt.Println("You may now inspect it with the inspect command.")
 
+	cfg.caughtPokemon[pokemon.Name] = pokemon
 	return nil
 }
